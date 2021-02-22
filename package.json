@@ -1,14 +1,14 @@
 {
   "name": "json-parse-ast",
   "version": "1.0.0",
-  "description": "",
+  "description": "Just another custom JSON AST parser, but this time with position/range types compatible with monaco's API",
   "main": "index.js",
   "scripts": {
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["json", "AST", "parser", "monaco"],
+  "author": "Johannes Oehm",
+  "license": "Apache-2.0",
   "devDependencies": {
     "jest": "^26.6.3"
   }

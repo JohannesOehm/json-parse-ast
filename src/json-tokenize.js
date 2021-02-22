@@ -56,6 +56,14 @@ var tokenTypes = [{
  */
 
 /**
+ * IPosition-type, compatible with monacos IPosition
+ *
+ * @typedef {Object} IPosition
+ * @property {number} lineNumber
+ * @property {number} column
+ */
+
+/**
  * @typedef {Object} Token
  * @property {string} type - token type
  * @property {IRange} position - position in string
@@ -68,44 +76,53 @@ var tokenTypes = [{
  * @return {Token[]}
  */
 function tokenize(json) {
-    function updateColumn(column) {
+    function update(line, column) {
         return {
-            lineno: position.lineno,
+            lineNumber: position.lineNumber + line,
             column: position.column + column
         }
     }
 
     function toIRange(start, end) {
         return {
-            startLineNumber: start.lineno,
+            startLineNumber: start.lineNumber,
             startColumn: start.column,
-            endLineNumber: end.lineno,
+            endLineNumber: end.lineNumber,
             endColumn: end.column
         }
     }
 
-    var position = {lineno: 1, column: 1};
+    var position = {lineNumber: 1, column: 1};
     var index = 0;
     var tokens = [];
     while (json.length > index) {
         var matchingTokenFound = false;
+        var subjson = json.substring(index);
         for (var i = 0; i < tokenTypes.length; i++) {
             var tokenType = tokenTypes[i];
             let regex = tokenType.regexp//new RegExp(tokenType.regexp);
             // regex.lastIndex = index;
-            // TODO: Make RegExp.lastIndex somehow work with ^ to gain more performance instead of .substring()
-            var matchResult = regex.exec(json.substring(index))
+            // TODO: Make RegExp.lastIndex somehow work with ^ to gain more performance instead of .substring()/subjson
+            var matchResult = regex.exec(subjson)
             if (matchResult) {
                 var rawToken = matchResult[0];
                 index += rawToken.length;
-                tokens.push(tokenType.create(rawToken, toIRange(position, updateColumn(rawToken.length))));
                 var numberOfNewLinesInToken = (rawToken.match(/\n/g) || '').length
-                if (numberOfNewLinesInToken > 1) {
-                    position.lineno += numberOfNewLinesInToken;
+                var startLine = position.lineNumber;
+                var startCol = position.column;
+                //TODO: Create copy of old position and merge old and new position
+                if (numberOfNewLinesInToken >= 1) {
+                    position.lineNumber += numberOfNewLinesInToken;
                     position.column = rawToken.length - rawToken.lastIndexOf("\n") + 1;
                 } else {
                     position.column += rawToken.length;
                 }
+                tokens.push(tokenType.create(rawToken, {
+                    startLineNumber: startLine,
+                    startColumn: startCol,
+                    endLineNumber: position.lineNumber,
+                    endColumn: position.column
+                }));
                 matchingTokenFound = true;
                 break;
             }

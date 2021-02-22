@@ -21,3 +21,18 @@ var tokens = tokenize('{"json": "string"}'); //returns list of tokens
 var [path, willBeValue] = getPathInObject(tokenize('{"foo": {"bar": "'));
 //returns path == ["foo", "bar"] and willBeValue == true
 ```
+
+## Parser
+```javascript
+var ast = parseTokens(tokenize(testString));
+//AST elements have
+// type 
+// position: IRange
+// raw: string
+// value?: string
+// parent?: AST 
+// children?: AST[]
+
+//Find node at specified position
+var node = findAtPosition(ast, {lineNumber: 4, column: 16})
+```
