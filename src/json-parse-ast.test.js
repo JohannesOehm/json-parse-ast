@@ -1,7 +1,8 @@
-const tokenize = require('./json-tokenize');
+const {findAtPosition, parseTokens, tokenize} = require("./json-parse-ast");
+
 
 test('Simple object with key-value pair', () => {
-    expect(tokenize.tokenize('{"foo":"bar"}')).toEqual([
+    expect(tokenize('{"foo":"bar"}')).toEqual([
         {
             type: 'punctuation',
             position: {startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: 2},
@@ -170,74 +171,74 @@ test('Complex example', () => {
         },
         {
             type: 'multilinecomment',
-            position: {
-                startLineNumber: 1,
-                startColumn: 35,
-                endLineNumber: 1,
-                endColumn: 48
-            },
+            position: {startLineNumber: 1, startColumn: 35, endLineNumber: 1, endColumn: 48},
             raw: '/* comment */',
             value: ' comment '
         },
         {
             type: 'whitespace',
-            position: {
-                startLineNumber: 1,
-                startColumn: 48,
-                endLineNumber: 1,
-                endColumn: 49
-            },
+            position: {startLineNumber: 1, startColumn: 48, endLineNumber: 1, endColumn: 49},
             raw: ' ',
             value: ' '
         },
         {
             type: 'punctuation',
-            position: {
-                startLineNumber: 1,
-                startColumn: 49,
-                endLineNumber: 1,
-                endColumn: 50
-            },
+            position: {startLineNumber: 1, startColumn: 49, endLineNumber: 1, endColumn: 50},
             raw: '}',
             value: '}'
         },
         {
             type: 'whitespace',
-            position: {
-                startLineNumber: 1,
-                startColumn: 50,
-                endLineNumber: 1,
-                endColumn: 51
-            },
+            position: {startLineNumber: 1, startColumn: 50, endLineNumber: 1, endColumn: 51},
             raw: ' ',
             value: ' '
         },
         {
             type: 'inlinecomment',
-            position: {
-                startLineNumber: 1,
-                startColumn: 51,
-                endLineNumber: 1,
-                endColumn: 56
-            },
+            position: {startLineNumber: 1, startColumn: 51, endLineNumber: 1, endColumn: 56},
             raw: '//baz',
             value: 'baz'
         }
     ]);
 });
 
-test('getPathInObject', () => {
+test('getPathInObject - nested within Array', () => {
     expect(tokenize.getPathInObject(tokenize.tokenize(`{
     "foo": 123, 
     "bar": [
         {"baz":"baz"}, 
-        {"bay": "`))).toEqual([["bar", "bay"], true]);
+        {"bay": "`))
+    ).toEqual([["bar", "bay"], true]);
 });
-test('getPathInObject-2', () => {
+test('getPathInObject - after array start will be value', () => {
     expect(tokenize.getPathInObject(tokenize.tokenize(`getPathInObject(tokenize('{"name":"test", "dependencies": ['))`)))
         .toEqual([["dependencies"], true]);
 });
-test('getPathInObject-3', () => {
+test('getPathInObject - next value will be key', () => {
     expect(tokenize.getPathInObject(tokenize.tokenize(`getPathInObject(tokenize('{"dependencies": {'))`)))
         .toEqual([["dependencies"], false]);
+});
+
+test('parsing to AST and re-serialization of AST works', () => {
+    let testString = `{
+        "foo": "bar",
+        "foo2": {
+            "hallo": "welt"
+        },
+        "baz:" ["bazinga"]
+    }`;
+    let ast = parseTokens(tokenize(testString));
+    expect(ast.raw).toEqual(testString);
+});
+
+test('findAtPosition', () => {
+    let testString = `{
+        "foo": "bar",
+        "foo2": {
+            "hallo": "welt"
+        },
+        "baz:" ["bazinga"]
+    }`;
+    let ast = parseTokens(tokenize(testString));
+    expect(findAtPosition(ast, {lineNumber: 4, column: 16}).raw).toEqual('"hallo"');
 });

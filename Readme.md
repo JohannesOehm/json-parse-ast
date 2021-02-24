@@ -36,3 +36,21 @@ var ast = parseTokens(tokenize(testString));
 //Find node at specified position
 var node = findAtPosition(ast, {lineNumber: 4, column: 16})
 ```
+
+## Usage with monaco
+This libraries intended use is for enhancing experience with custom JSON formats. See example use-cases below:
+
+### Enhancing autocomplete/IntelliSense
+```javascript
+monaco.languages.registerCompletionItemProvider('json', {
+    provideCompletionItems: function(model, position) {
+        let textUntilPosition = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+        let [jsonPath, willBeValue] = getPathInObject(tokenize(textUntilPosition));
+        if (willBeValue && jsonPath[jsonPath.length-1] === "dependencies") {
+             return { suggestions: listDependencies() };
+        } else {
+             return { suggestions: [] };
+        }
+    }
+});
+```
