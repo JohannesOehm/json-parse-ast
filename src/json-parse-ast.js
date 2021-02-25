@@ -186,7 +186,7 @@ function parseArray(tokens, current) {
         var s = [];
         for (var i = 0; i < this.children.length; i++) {
             if (["StringLiteral", "NumberLiteral", "LiteralLiteral", "Object", "Array"].includes(children[i].type)) {
-                s.push(children[i].raw);
+                s.push(children[i]);
             }
         }
         return s;
