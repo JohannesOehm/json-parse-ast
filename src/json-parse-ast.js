@@ -455,3 +455,48 @@ module.exports.getPathInObject = function (tokens) {
 }
 
 module.exports.findAtPosition = findAtPosition;
+
+
+module.exports.getKeyInParent = function(ast)  {
+    let parent = ast.parent
+    if (parent.type === "Array") {
+        let values = parent.extractValues(); ///@typeof AST[]
+        for (var i=0; i<values.length; i++) {
+            if(values[i] === ast){
+                return i;
+            }
+        }
+    } else if (parent.type === "Object") {
+        let values = parent.extractValues(); //@typeof {key: AST, value: AST}[]
+        for (var i=0; i<values.length; i++) {
+            if(values[i].value === ast){
+                return values[i].key.value;
+            }
+        }
+    } else {
+        throw new Error("invalid parent.type " + parent.type);
+    }
+
+}
+
+module.exports.istKeyInParent = function(ast)  {
+    if(ast.type !== "StringLiteral") {
+        return false;
+    }
+
+    let parent = ast.parent
+    if (parent.type === "Array") {
+        return false;
+    } else if (parent.type === "Object") {
+        let values = parent.extractValues(); //@typeof {key: AST, value: AST}[]
+        for (var i=0; i<values.length; i++) {
+            if(values[i].value === ast){
+                return false;
+            }
+            return true;
+        }
+    } else {
+        throw new Error("invalid parent.type " + parent.type);
+    }
+
+}

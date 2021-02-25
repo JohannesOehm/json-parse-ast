@@ -1,4 +1,4 @@
-const {findAtPosition, parseTokens, tokenize, getPathInObject} = require("./json-parse-ast");
+const {findAtPosition, parseTokens, tokenize, getPathInObject, getKeyInParent, isKeyInParent} = require("./json-parse-ast");
 
 
 test('Simple object with key-value pair', () => {
@@ -201,7 +201,7 @@ test('parsing to AST and re-serialization of AST works', () => {
         "foo2": {
             "hallo": "welt"
         },
-        "baz:" ["bazinga"]
+        "baz:": ["bazinga"]
     }`;
     let ast = parseTokens(tokenize(testString));
     expect(ast.raw).toEqual(testString);
@@ -213,8 +213,53 @@ test('findAtPosition', () => {
         "foo2": {
             "hallo": "welt"
         },
-        "baz:" ["bazinga"]
+        "baz:": ["bazinga"]
     }`;
     let ast = parseTokens(tokenize(testString));
     expect(findAtPosition(ast, {lineNumber: 4, column: 16}).raw).toEqual('"hallo"');
 });
+
+
+test('getNameInParent-Object', () => {
+    let testString = `{
+        "foo": "bar",
+        "foo2": {
+            "hallo": "welt"
+        },
+        "baz:": ["bazinga"]
+    }`;
+    let ast = parseTokens(tokenize(testString));
+    let foo2 = findAtPosition(ast, {lineNumber: 4, column: 16}).parent;
+    expect(getKeyInParent(foo2)).toEqual("foo2");
+});
+
+
+test('getNameInParent-Array', () => {
+    let testString = `{
+        "foo": "bar",
+        "foo2": {
+            "hallo": "welt"
+        },
+        "baz:": ["bazinga"]
+    }`;
+    let ast = parseTokens(tokenize(testString));
+    let baz = findAtPosition(ast, {lineNumber: 6, column: 23}).parent;
+    expect(getKeyInParent(baz)).toEqual("baz:");
+});
+
+test('isKeyInParent-Object', () => {
+    let testString = `{
+        "foo": "bar",
+        "foo2": {
+            "hallo": "welt"
+        },
+        "baz:": ["bazinga"]
+    }`;
+    let ast = parseTokens(tokenize(testString));
+    let hallo = findAtPosition(ast, {lineNumber: 4, column: 16});
+    expect(isKeyInParent(hallo)).toEqual(true);
+
+    let welt = findAtPosition(ast, {lineNumber: 4, column: 23});
+    expect(isKeyInParent(welt)).toEqual(false);
+});
+

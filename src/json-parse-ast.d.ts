@@ -34,3 +34,7 @@ export function getPathInObject(tokens: Token[]): [string[], boolean]
 export function findAtPosition(ast: AST, position: IPosition): AST|null
 
 export function parseTokens(tokens: Token[]): AST
+
+export function getKeyInParent(ast: AST): string|number
+
+export function isKeyInParent(ast: AST): boolean
