@@ -459,6 +459,10 @@ module.exports.findAtPosition = findAtPosition;
 
 module.exports.getKeyInParent = function(ast)  {
     let parent = ast.parent
+    if (!parent) { //AST is already root
+        return;
+    }
+
     if (parent.type === "Array") {
         let values = parent.extractValues(); ///@typeof AST[]
         for (var i=0; i<values.length; i++) {
@@ -485,6 +489,10 @@ module.exports.isKeyInParent = function(ast)  {
     }
 
     let parent = ast.parent
+    if (!parent) {
+        return false;
+    }
+
     if (parent.type === "Array") {
         return false;
     } else if (parent.type === "Object") {
