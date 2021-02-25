@@ -493,8 +493,8 @@ module.exports.isKeyInParent = function(ast)  {
             if(values[i].value === ast){
                 return false;
             }
-            return true;
         }
+        return true;
     } else {
         throw new Error("invalid parent.type " + parent.type);
     }
