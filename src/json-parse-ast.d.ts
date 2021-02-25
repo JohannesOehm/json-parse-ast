@@ -32,3 +32,5 @@ export function tokenize(jsonString: string): Token[]
 export function getPathInObject(tokens: Token[]): [string[], boolean]
 
 export function findAtPosition(ast: AST, position: IPosition): AST|null
+
+export function parseTokens(tokens: Token[]): AST
