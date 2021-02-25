@@ -479,7 +479,7 @@ module.exports.getKeyInParent = function(ast)  {
 
 }
 
-module.exports.istKeyInParent = function(ast)  {
+module.exports.isKeyInParent = function(ast)  {
     if(ast.type !== "StringLiteral") {
         return false;
     }

@@ -1,6 +1,6 @@
 {
   "name": "json-parse-ast",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Just another custom JSON AST parser, but this time with position/range types compatible with monaco's API",
   "scripts": {
     "test": "jest"
